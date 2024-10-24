@@ -26,6 +26,7 @@ jobs:
           done
 
   build-memory:
+    needs: test-memory
     runs-on: self-hosted
 
     steps:
@@ -36,6 +37,7 @@ jobs:
         run: docker build -t ${{secrets.DOCKER_USERNAME}}/memory .
 
   push-memory:
+    needs: build-memory
     runs-on: self-hosted
 
     steps:

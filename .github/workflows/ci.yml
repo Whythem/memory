@@ -67,16 +67,19 @@ jobs:
         run: docker push ${{secrets.DOCKER_USERNAME}}/memory
 
   deploy-memory:
-    needs: build-memory
+    needs: push-memory
     runs-on: self-hosted
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to WSL
+      - name: connexion ssh
         run: |
-          ssh -o StrictHostKeyChecking=whythem@172.27.95.33 "
-          docker pull ${{ secrets.DOCKER_USERNAME }}/memory &&
-          docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/memory
-          "
+            echo "whythem" | ssh whythem@127.17.0.1 << EOF
+              echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+              docker pull ${{ secrets.DOCKER_USERNAME }}/memory:latest
+              docker stop nginx-memory || true
+              docker rm nginx-memory || true
+              docker run --name nginx-memory -p 80:80 -d ${{ secrets.DOCKER_USERNAME }}/memory
+            EOF

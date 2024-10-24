@@ -19,8 +19,8 @@ jobs:
           sudo apt-get install -y file
 
       - name: Test JPG files
-        run: | 
-          for f in $(find . -name "*.jpg ); do
+        run: |
+          for f in $(find . -name "*.jpg"); do
             echo "Testing $f"
             file $f
           done

@@ -65,3 +65,18 @@ jobs:
 
       - name: Push Docker image to DockerHub
         run: docker push ${{secrets.DOCKER_USERNAME}}/memory
+
+  deploy-memory:
+    needs: build-memory
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to WSL
+        run: |
+          ssh -o StrictHostKeyChecking=whythem@172.27.95.33 "
+          docker pull ${{ secrets.DOCKER_USERNAME }}/memory &&
+          docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/memory
+          "

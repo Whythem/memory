@@ -20,10 +20,26 @@ jobs:
 
       - name: Test JPG files
         run: |
+          # Initialiser une variable pour suivre les erreurs
+          ERROR=false
+          
+          # Vérifier tous les fichiers .jpg
           for f in $(find . -name "*.jpg"); do
             echo "Testing $f"
-            file $f
+            # Vérifier si le fichier est une image JPEG
+            if file "$f" | grep -q 'JPEG image data'; then
+              echo "$f is a valid JPEG image."
+            else
+              echo "Error: $f is not a valid JPEG image."
+              ERROR=true
+            fi
           done
+
+          # Si des fichiers non JPEG ont été trouvés, échouer le job
+          if [ "$ERROR" = true ]; then
+            echo "One or more files are not valid JPEG images."
+            exit 1
+          fi
 
   build-memory:
     needs: test-memory
